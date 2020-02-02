@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byType">
+
+    <bean id="messageService" class="com.techstudio.springlearning.service.impl.MessageServiceImpl">
+        <property name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="userService" class="com.techstudio.springlearning.service.impl.UserServiceImpl"/>
+
+    <bean id="testController" class="com.techstudio.springlearning.controller.TestController"/>
+</beans>
