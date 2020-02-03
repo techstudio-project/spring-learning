@@ -9,12 +9,16 @@
     <description>spring learning application</description>
 
     <context-param>
+        <!-- spring context（root context）初始化会用到，和servlet init-param不同
+         init-param:初始化spring dispatcherServlet 的context，为了避免重复加载，可以将servlet的配置文件单独出来
+         由此可知spring mvc中有两个bean容器（1.spring root context 2.专门服务与servlet的context）
+         -->
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:spring-*.xml</param-value>
+        <param-value>classpath:spring-context*.xml</param-value>
     </context-param>
 
     <listener>
-        <!-- spring web 上下文监听器，同时也是spring mvc的启动入口 -->
+        <!-- spring root web 上下文监听器，同时也是spring mvc的启动入口 -->
         <!-- web 容器启动时会执行这个监听器 -->
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
@@ -36,9 +40,15 @@
         <servlet-name>dispatcherServlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
+            <!-- 初始化servlet要用到的context，它是作为root context的子容器，
+            作用范围应仅限在servlet级别
+            1.配置视图解析器
+            2.静态资源存放位置
+            3.controller -->
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:spring-mvc-servlet.xml</param-value>
+            <param-value>classpath:spring-servlet.xml</param-value>
         </init-param>
+        <!-- 大于等于0：在启动时就会创建这个servlet -->
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

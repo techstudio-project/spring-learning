@@ -2,6 +2,7 @@ package com.techstudio.springlearning.service.impl;
 
 import com.techstudio.springlearning.service.MessageService;
 import com.techstudio.springlearning.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageServiceImpl implements MessageService {
 
+    @Autowired
     private UserService userService;
 
     @Override

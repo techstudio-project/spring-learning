@@ -13,7 +13,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
  */
 public class SpringLearningApp {
 
-    private static final String XML_LOCATION = "classpath:spring-mvc-context.xml";
+    private static final String XML_LOCATION = "classpath:spring-context.xml";
 
     public static void main1(String[] args) {
 
@@ -43,7 +43,7 @@ public class SpringLearningApp {
 
     private static ApplicationContext annotationConfigApplicationContext() {
         return new AnnotationConfigApplicationContext(
-                "com.goldwind.goplus.test.springmvc");
+                "com.techstudio.springlearning");
     }
 
 }

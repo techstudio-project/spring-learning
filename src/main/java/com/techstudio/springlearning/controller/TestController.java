@@ -1,5 +1,7 @@
 package com.techstudio.springlearning.controller;
 
+import com.techstudio.springlearning.service.MessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,9 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
-    @GetMapping()
+    @Autowired
+    private MessageService messageService;
+
+    @GetMapping("hello")
     public String hello() {
-        return "spring mvc application startup";
+        return messageService.getMessage();
     }
 
 }
