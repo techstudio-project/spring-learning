@@ -13,7 +13,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
  */
 public class SpringLearningApp {
 
-    private static final String XML_LOCATION = "classpath:spring-context.xml";
+    private static final String XML_LOCATION = "classpath:spring-test.xml";
 
     public static void main1(String[] args) {
 

@@ -1,8 +1,8 @@
 package com.techstudio.springlearning.service.impl;
 
+import com.techstudio.springlearning.service.InfoService;
 import com.techstudio.springlearning.service.MessageService;
 import com.techstudio.springlearning.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,15 +12,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    private InfoService infoService;
+
+    public MessageServiceImpl(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public String getMessage() {
         return "hello world";
     }
 
-    public void setUserService(UserService userService) {
-        this.userService = userService;
+    public InfoService getInfoService() {
+        return infoService;
+    }
+
+    public void setInfoService(InfoService infoService) {
+        this.infoService = infoService;
     }
 }
