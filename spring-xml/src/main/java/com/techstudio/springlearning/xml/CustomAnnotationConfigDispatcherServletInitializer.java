@@ -1,7 +1,7 @@
-package com.techstudio.springlearning;
+package com.techstudio.springlearning.xml;
 
-import com.techstudio.springlearning.config.RootConfig;
-import com.techstudio.springlearning.config.WebMvcConfig;
+import com.techstudio.springlearning.xml.config.RootConfig;
+import com.techstudio.springlearning.xml.config.WebMvcConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 

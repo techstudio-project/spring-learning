@@ -8,12 +8,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.1.10.RELEASE</version>
-<!--        <version>1.5.6.RELEASE</version>-->
     </parent>
 
     <groupId>com.techstudio</groupId>
     <artifactId>spring-learning</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
         <java.version>1.8</java.version>
@@ -25,21 +25,8 @@
         <tomcat.version>9.0.27</tomcat.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>spring-xml</module>
+        <module>spring-annotation</module>
+    </modules>
 </project>

@@ -1,4 +1,4 @@
-package com.techstudio.springlearning.processor;
+package com.techstudio.springlearning.xml.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -8,8 +8,6 @@
        http://www.springframework.org/schema/context/spring-context.xsd"
        default-autowire="byType">
 
-    <!-- 扫描整个工程（排除controller）-->
-    <context:component-scan base-package="com.techstudio.springlearning">
-        <context:exclude-filter type="regex" expression="com.techstudio.springlearning.controller"/>
-    </context:component-scan>
+    <context:component-scan base-package="com.techstudio.springlearning.xml.controller"/>
+
 </beans>

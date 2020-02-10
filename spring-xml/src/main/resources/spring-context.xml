@@ -8,13 +8,8 @@
        http://www.springframework.org/schema/context/spring-context.xsd"
        default-autowire="byType">
 
-    <bean id="messageService" class="com.techstudio.springlearning.service.impl.MessageServiceImpl">
-        <constructor-arg name="userService" ref="userService"/>
-        <property name="infoService" ref="infoService"/>
-    </bean>
-
-    <bean id="infoService" class="com.techstudio.springlearning.service.impl.InfoServiceImpl"/>
-
-    <bean id="userService" class="com.techstudio.springlearning.service.impl.UserServiceImpl"/>
-
+    <!-- 扫描整个工程（排除controller）-->
+    <context:component-scan base-package="com.techstudio.springlearning.xml">
+        <context:exclude-filter type="regex" expression="com.techstudio.springlearning.xml.controller"/>
+    </context:component-scan>
 </beans>

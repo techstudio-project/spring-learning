@@ -1,4 +1,4 @@
-package com.techstudio.springlearning.config;
+package com.techstudio.springlearning.xml.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;

@@ -1,4 +1,4 @@
-package com.techstudio.springlearning.service;
+package com.techstudio.springlearning.xml.service;
 
 /**
  * @author lj

@@ -1,6 +1,6 @@
-package com.techstudio.springlearning.controller;
+package com.techstudio.springlearning.xml.controller;
 
-import com.techstudio.springlearning.service.MessageService;
+import com.techstudio.springlearning.xml.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

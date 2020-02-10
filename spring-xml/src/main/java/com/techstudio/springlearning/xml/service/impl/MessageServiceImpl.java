@@ -1,8 +1,8 @@
-package com.techstudio.springlearning.service.impl;
+package com.techstudio.springlearning.xml.service.impl;
 
-import com.techstudio.springlearning.service.InfoService;
-import com.techstudio.springlearning.service.MessageService;
-import com.techstudio.springlearning.service.UserService;
+import com.techstudio.springlearning.xml.service.InfoService;
+import com.techstudio.springlearning.xml.service.MessageService;
+import com.techstudio.springlearning.xml.service.UserService;
 import org.springframework.stereotype.Service;
 
 /**

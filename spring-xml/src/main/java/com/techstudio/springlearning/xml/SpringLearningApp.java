@@ -1,6 +1,6 @@
-package com.techstudio.springlearning;
+package com.techstudio.springlearning.xml;
 
-import com.techstudio.springlearning.service.MessageService;
+import com.techstudio.springlearning.xml.service.MessageService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
