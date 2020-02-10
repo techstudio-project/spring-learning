@@ -15,7 +15,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan("com.techstudio.springlearning.controller")
+@ComponentScan("com.techstudio.springlearning.xml.controller")
 public class WebMvcConfig implements WebMvcConfigurer {
 
     /**

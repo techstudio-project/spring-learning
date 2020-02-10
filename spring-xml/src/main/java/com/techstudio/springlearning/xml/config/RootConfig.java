@@ -13,8 +13,8 @@ import static org.springframework.context.annotation.FilterType.REGEX;
  * @date 2020/2/8
  */
 @Configuration
-@ComponentScan(value = "com.techstudio.springlearning",
-        excludeFilters = {@Filter(type = REGEX, pattern = "com.techstudio.springlearning.controller"),
+@ComponentScan(value = "com.techstudio.springlearning.xml",
+        excludeFilters = {@Filter(type = REGEX, pattern = "com.techstudio.springlearning.xml.controller"),
                 @Filter(type = ANNOTATION, value = EnableWebMvc.class)})
 public class RootConfig {
 }
