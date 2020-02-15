@@ -3,6 +3,8 @@ package com.techstudio.springlearning.annotation.controller;
 import com.techstudio.springlearning.annotation.event.LoginEvent;
 import com.techstudio.springlearning.annotation.service.TestService;
 import com.techstudio.springlearning.annotation.util.SpringContextUtils;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

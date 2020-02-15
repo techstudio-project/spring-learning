@@ -25,6 +25,7 @@
         <tomcat.version>9.0.27</tomcat.version>
         <junit.version>4.13</junit.version>
         <cglib.version>3.2.10</cglib.version>
+        <aspectj.version>1.9.4</aspectj.version>
     </properties>
 
     <modules>
