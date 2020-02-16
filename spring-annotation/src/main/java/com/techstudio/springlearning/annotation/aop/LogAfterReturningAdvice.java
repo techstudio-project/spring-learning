@@ -13,6 +13,6 @@ import java.lang.reflect.Method;
 public class LogAfterReturningAdvice implements AfterReturningAdvice {
     @Override
     public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
-        System.out.println("方法执行后");
+        System.out.println("implements AfterReturningAdvice，在方法调用后执行");
     }
 }

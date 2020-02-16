@@ -16,14 +16,14 @@ import org.springframework.context.annotation.Configuration;
  * @author lj
  * @date 2020/2/13
  */
-//@Configuration
+@Configuration
 public class SpringAopConfig_1_2 {
 
     //@Bean
     public ProxyFactoryBean testPrintFactoryBean() throws ClassNotFoundException {
         ProxyFactoryBean bean = new ProxyFactoryBean();
-        bean.setInterfaces(TestPrint.class);
-        bean.setTarget(new TestPrintImpl());
+        bean.setInterfaces(OrderService.class);
+        bean.setTarget(new OrderServiceImpl());
         // 基于advice直接拦截，这种方式粒度只能到类，及类中的方法都将被拦截
         bean.setInterceptorNames("logMethodBeforeAdvice", "logAfterReturningAdvice");
         return bean;
@@ -32,8 +32,8 @@ public class SpringAopConfig_1_2 {
     //@Bean
     public ProxyFactoryBean testPrintFactoryBean1() throws ClassNotFoundException {
         ProxyFactoryBean bean = new ProxyFactoryBean();
-        bean.setInterfaces(TestPrint.class);
-        bean.setTarget(new TestPrintImpl());
+        bean.setInterfaces(OrderService.class);
+        bean.setTarget(new OrderServiceImpl());
         // 这里配置的Advisor将拦截粒度控制在方法
         bean.setInterceptorNames("testPrintMethodInterceptor");
         return bean;
@@ -42,8 +42,8 @@ public class SpringAopConfig_1_2 {
     //@Bean
     public ProxyFactoryBean testPrintFactoryBean2() throws ClassNotFoundException {
         ProxyFactoryBean bean = new ProxyFactoryBean();
-        bean.setInterfaces(TestPrint.class);
-        bean.setTarget(new TestPrintImpl());
+        bean.setInterfaces(OrderService.class);
+        bean.setTarget(new OrderServiceImpl());
         // 实现了 MethodInterceptor接口的拦截器
         bean.setInterceptorNames("logMethodInterceptor");
         return bean;
@@ -65,10 +65,17 @@ public class SpringAopConfig_1_2 {
     }
 
     @Bean
-    public RegexpMethodPointcutAdvisor LogRegexpMethodPointcutAdvisor(LogAfterReturningAdvice advice) {
+    public RegexpMethodPointcutAdvisor LogRegexpMethodPointcutAdvisor(LogMethodBeforeAdvice advice) {
         RegexpMethodPointcutAdvisor advisor = new RegexpMethodPointcutAdvisor();
         advisor.setAdvice(advice);
-        advisor.setPattern("com.techstudio.springlearning.annotation.aop.*");
+
+        // 正则匹配规则
+        // . 任意的单一字符
+        // + 前一个字符出现一次或多次
+        // * 表示前一个字符出现一次或者多次
+
+        // OrderService.getOrder方法将被匹配
+        advisor.setPattern("com.techstudio.springlearning.annotation.aop.OrderService.getOrder.*");
         return advisor;
     }
 
@@ -82,7 +89,7 @@ public class SpringAopConfig_1_2 {
 
 
     /**
-     * 改bean的作用是使用ioc容器中所有的advisor来进行匹配
+     * 该bean的作用是使用ioc容器中所有的advisor来进行匹配
      *
      * @return
      */

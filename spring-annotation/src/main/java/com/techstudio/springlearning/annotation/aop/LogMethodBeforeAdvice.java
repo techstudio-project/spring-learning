@@ -14,6 +14,6 @@ public class LogMethodBeforeAdvice implements MethodBeforeAdvice {
 
     @Override
     public void before(Method method, Object[] args, Object target) throws Throwable {
-        System.out.println("方法执行前");
+        System.out.println("implements MethodBeforeAdvice 在方法调用前执行");
     }
 }

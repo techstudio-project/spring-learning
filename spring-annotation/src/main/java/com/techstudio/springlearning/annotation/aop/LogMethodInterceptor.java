@@ -13,9 +13,9 @@ public class LogMethodInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        if(invocation.getMethod().getName().equals("doSomething")){
-            System.out.println("this this MethodInterceptor");
-        }
-        return invocation.proceed();
+        System.out.println("implements MethodInterceptor 方法调用前执行");
+        Object retVal = invocation.proceed();
+        System.out.println("implements MethodInterceptor 方法调用后执行");
+        return retVal;
     }
 }

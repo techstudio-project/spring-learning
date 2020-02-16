@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
  * @author lj
  * @date 2020/2/14
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class SystemArchitecturePointCut {
 
     /**

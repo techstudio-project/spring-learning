@@ -4,10 +4,8 @@ package com.techstudio.springlearning.annotation.aop;
  * @author lj
  * @date 2020/2/13
  */
-public interface TestPrint {
+public interface OrderService {
 
-    void doSomething();
-
-    void doSomething1();
+    String getOrder();
 
 }

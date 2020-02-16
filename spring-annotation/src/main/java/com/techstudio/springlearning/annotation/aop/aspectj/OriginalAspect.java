@@ -9,7 +9,7 @@ import org.aspectj.lang.annotation.Pointcut;
  * @author lj
  * @date 2020/2/15
  */
-@Aspect
+//@Aspect
 public class OriginalAspect {
 
     /**

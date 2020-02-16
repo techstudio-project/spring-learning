@@ -11,7 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * @author lj
  * @date 2020/2/14
  */
-@Configuration
+//@Configuration
 // 开启 @AspectJ 的注解配置
 @EnableAspectJAutoProxy
 public class SpringAopConfig_2_0 {
