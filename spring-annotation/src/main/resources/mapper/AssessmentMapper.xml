@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.AssessmentMapper">
+
+    <select id="findAll" resultType="java.util.Map">
+        select * from ses_assessment_stat where `month`='2020-01'
+    </select>
+
+</mapper>
