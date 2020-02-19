@@ -1,9 +1,6 @@
 package com.techstudio.springlearning.annotation.http;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -14,6 +11,10 @@ import java.security.cert.X509Certificate;
  * @date 2020/2/18
  */
 public class SSLUtils {
+
+    public static HostnameVerifier getNoopHostnameVerifier(){
+        return (s, sslSession) -> true;
+    }
 
     public static SSLContext getTrustAllSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext context = SSLContext.getInstance("TLS");
