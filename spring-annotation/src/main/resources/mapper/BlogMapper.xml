@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper">
+    <!--缓存配置-->
+    <cache eviction="LRU" flushInterval="30000" size="2048"/>
+
+    <!--配置其它namespace定义的缓存-->
+    <!--<cache-ref namespace="xxx"/>-->
+
+    <!-- 描述如何从数据库结果集加载对象的最复杂和最强大的元素。-->
+    <!--select 嵌套子查询，(N+1 查询问题)对于返回list集合的情况会遍历每条主数据，然后进行子查询，增加了访问数据库的次数，，可以通过延迟加载来分散压力，但是如果进行遍历就会触发所有的子查询-->
+    <!---->
+    <resultMap id="blogMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <association property="article" select="findOneArticle" column="id"
+                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+            <id property="id" column="id"/>
+            <result property="blogId" column="blog_id"/>
+            <result property="content" column="content"/>
+        </association>
+        <collection property="articles" select="findArticles" column="id"
+                    ofType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+            <id property="id" column="id"/>
+            <result property="blogId" column="blog_id"/>
+            <result property="content" column="content"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="blogMapNew" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+        <id property="id" column="b_id"/>
+        <result property="name" column="b_name"/>
+        <association property="article"
+                     resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper.articleBaseMap"
+                     column="a_o_blog_id" columnPrefix="a_o_"
+                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article"/>
+        <collection property="articles"
+                    resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper.articleBaseMap"
+                    column="a_blog_id" columnPrefix="a_"
+                    ofType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article"/>
+    </resultMap>
+
+    <resultMap id="blogBaseMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <!-- 能被其它statement引用的sql片段-->
+    <sql id="sqlFragmentBlog">
+        ${alias}.id,${alias}.name
+    </sql>
+
+    <sql id="sqlFragmentArticle">
+        ${alias}.id,${alias}.blog_id,${alias}.content
+    </sql>
+
+    <insert id="insert">
+
+    </insert>
+
+    <update id="update">
+
+    </update>
+
+    <delete id="delete">
+
+    </delete>
+
+    <!--flushCache默认为false，表示任何时候语句被调用，都不会去清空本地缓存和二级缓存。useCache默认为true，表示会将本条语句的结果进行二级缓存。
+    在insert、update、delete语句时： flushCache默认为true，表示任何时候语句被调用，都会导致本地缓存和二级缓存被清空。
+    useCache属性在该情况下没有。update 的时候如果 flushCache="false"，则当你更新后，查询的数据数据还是老的数据。-->
+    <select id="findAll" resultMap="blogMap" flushCache="false" useCache="true">
+        select
+        <include refid="sqlFragmentBlog">
+            <property name="alias" value="t"/>
+        </include>
+        from t_blog t
+    </select>
+
+    <select id="findById" resultMap="blogMap">
+        select
+        <include refid="sqlFragmentBlog">
+            <property name="alias" value="t"/>
+        </include>
+        from t_blog t where t.id= #{id}
+    </select>
+
+    <select id="findOneArticle" resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+        select
+        <include refid="sqlFragmentArticle">
+            <property name="alias" value="t"/>
+        </include>
+        from t_article t where t.blog_id= #{blogId} limit 1
+    </select>
+
+    <select id="findArticles" resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+        select
+        <include refid="sqlFragmentArticle">
+            <property name="alias" value="t"/>
+        </include>
+        from t_article t where t.blog_id= #{blogId}
+    </select>
+
+    <select id="findAllNew" resultMap="blogMapNew">
+        select
+        b.id b_id,
+        b.name b_name,
+        a.id a_id,
+        a.blog_id a_blog_id,
+        a.content a_content,
+        a_o.id a_o_id,
+        a_o.blog_id a_o_blog_id,
+        a_o.content a_o_content
+        from t_blog b
+        left join t_article a on b.id=a.blog_id
+        left join t_article a_o on b.id=a_o.blog_id and a_o.blog_id=3
+    </select>
+
+</mapper>

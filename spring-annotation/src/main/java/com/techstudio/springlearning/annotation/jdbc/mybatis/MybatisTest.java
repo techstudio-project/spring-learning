@@ -1,7 +1,13 @@
 package com.techstudio.springlearning.annotation.jdbc.mybatis;
 
 import com.alibaba.fastjson.JSON;
-import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.AssessmentMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInterceptor;
+import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper;
+import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper;
+import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article;
+import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.mapping.Environment;
@@ -14,7 +20,6 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author lj
@@ -24,7 +29,7 @@ public class MybatisTest {
 
 
     public static void main(String[] args) {
-        queryWithMybatisAPI();
+        queryArticleTest();
     }
 
     /**
@@ -33,12 +38,30 @@ public class MybatisTest {
      * <p>
      * 通过动态代理技术，实际上最终还是通过1.1的方式来执行
      */
-    private static void queryWithMapper() {
+    private static void queryBlogListTest() {
         SqlSessionFactory ssf = getSqlSessionFactory();
         try (SqlSession session = ssf.openSession()) {
-            AssessmentMapper mapper = session.getMapper(AssessmentMapper.class);
-            List<Map<String, Object>> list = mapper.findAll();
-            System.out.println(JSON.toJSONString(list));
+            BlogMapper mapper = session.getMapper(BlogMapper.class);
+            List<Blog> blogs = mapper.findAllNew();
+            System.out.println(JSON.toJSONString(blogs));
+        }
+    }
+
+    private static void queryBlogTest() {
+        SqlSessionFactory ssf = getSqlSessionFactory();
+        try (SqlSession session = ssf.openSession()) {
+            BlogMapper mapper = session.getMapper(BlogMapper.class);
+            Blog blog = mapper.findById(1);
+            System.out.println(JSON.toJSONString(blog));
+        }
+    }
+
+    private static void queryArticleTest() {
+        SqlSessionFactory ssf = getSqlSessionFactory();
+        try (SqlSession session = ssf.openSession()) {
+            ArticleMapper mapper = session.getMapper(ArticleMapper.class);
+            List<Article> articles = mapper.findAll();
+            System.out.println(JSON.toJSONString(articles));
         }
     }
 
@@ -49,9 +72,24 @@ public class MybatisTest {
      */
     private static void queryWithMybatisAPI() {
         SqlSessionFactory ssf = getSqlSessionFactoryWithXML();
-        try (SqlSession session = ssf.openSession()) {
-            List<Map<String, Object>> list = session.selectList("com.techstudio.springlearning.annotation.jdbc.mybatis.dao.AssessmentMapper.findAll");
-            System.out.println(JSON.toJSONString(list));
+        // SqlSession中执行了任何一个update操作(update()、delete()、insert())
+        // 都会清空PerpetualCache对象的数据，但是该对象可以继续使用
+        try (SqlSession session = ssf.openSession(true)) {
+            PageHelper.startPage(2, 3);
+            List<Blog> list = session.selectList("com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper.findAll");
+
+            Page<Blog> page = (Page<Blog>) list;
+            System.out.println(JSON.toJSONString(page.toPageInfo()));
+
+            // System.out.println(JSON.toJSONString(list));
+            // 以下会命中缓存（同一个SqlSession）
+            List<Blog> cachedList = session.selectList("com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper.findAll");
+
+            // 清除一级缓存
+            // session.clearCache();
+
+            // 清除二级缓存
+            // session.getConfiguration().getMappedStatement("xxx").getCache().clear();
         }
     }
 
@@ -62,22 +100,34 @@ public class MybatisTest {
     }
 
     private static SqlSessionFactory getSqlSessionFactoryWithCodeConfig() {
+
         PooledDataSource pds = new PooledDataSource();
         pds.setDriver("com.mysql.cj.jdbc.Driver");
-        pds.setUrl("jdbc:mysql://10.1.248.147:3306/am_general_qhln?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8");
-        pds.setUsername("am");
-        pds.setPassword("amdbadmin,");
+        pds.setUrl("jdbc:mysql://10.200.50.173:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8");
+        pds.setUsername("root");
+        pds.setPassword("dbadmin");
 
         TransactionFactory tf = new JdbcTransactionFactory();
         Environment env = new Environment("development", tf, pds);
         Configuration config = new Configuration(env);
-        config.addMapper(AssessmentMapper.class);
+        config.addMapper(BlogMapper.class);
+        config.addMapper(ArticleMapper.class);
+        config.addInterceptor(new InterceptorTest());
+        // 分页插件
+        config.addInterceptor(new PageInterceptor());
+        config.setMapUnderscoreToCamelCase(true);
+        config.setLazyLoadingEnabled(true);
 
-        // 加载mapper文件
-        InputStream is = MybatisTest.class.getClassLoader().getResourceAsStream("mapper/AssessmentMapper.xml");
+        // 加载mapper xml文件
+        InputStream is = MybatisTest.class.getClassLoader().getResourceAsStream("mapper/BlogMapper.xml");
         XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(is,
-                config, "mapper/AssessmentMapper.xml", config.getSqlFragments());
+                config, "mapper/BlogMapper.xml", config.getSqlFragments());
         xmlMapperBuilder.parse();
+
+        InputStream articleIn = MybatisTest.class.getClassLoader().getResourceAsStream("mapper/ArticleMapper.xml");
+        XMLMapperBuilder articleXmlMapperBuilder = new XMLMapperBuilder(articleIn,
+                config, "mapper/ArticleMapper.xml", config.getSqlFragments());
+        articleXmlMapperBuilder.parse();
 
         return new SqlSessionFactoryBuilder().build(config);
     }
@@ -102,7 +152,7 @@ public class MybatisTest {
      * SqlSession 应该设计成线程内共享、线程间互斥，及在一次请求中有一个SqlSession
      * 所以ThreadLocal非常适合放SqlSession
      * <p>
-     * 一下为官方描述：
+     * 以下为官方描述：
      * <p>
      * 每个线程都应该有自己的SqlSession实例。SqlSession的实例不能共享，也不是线程安全的。因此，最好的范围是请求或方法范围。
      * 永远不要在静态字段甚至类的实例字段中保留对SqlSession实例的引用。永远不要在任何托管范围内保留对SqlSession的引用，
@@ -119,7 +169,7 @@ public class MybatisTest {
     /**
      * SqlSessionFactory应该设计成单例,生命期存在与整个应用程序
      * <p>
-     * 一下为官方：
+     * 以下为官方：
      * <p>
      * 一旦创建，SqlSessionFactory应该在应用程序执行期间存在。应该很少或没有理由去处理或重新创建它。
      * 最好不要在应用程序运行时多次重建SqlSessionFactory。这样做应该被认为是一种“坏味道”。

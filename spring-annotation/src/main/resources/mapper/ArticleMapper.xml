@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper">
+
+    <resultMap id="articleBaseMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+        <id property="id" column="id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="content" column="content"/>
+    </resultMap>
+
+    <resultMap id="articleRelationMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+        <id property="id" column="id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="content" column="content"/>
+        <association property="blog" column="b_id" columnPrefix="b_"
+                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog"
+                     resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper.blogBaseMap"/>
+    </resultMap>
+
+    <update id="update">
+        UPDATE t_article
+        <set>
+            <if test="article.blogId != null">blog_id = #{article.blogId}</if>
+        </set>
+        where id = #{article.id}
+    </update>
+
+    <select id="findAll" resultMap="articleRelationMap">
+        select *,blog_id b_id from t_article
+    </select>
+
+    <!--动态sql-->
+    <select id="findWithCondition"
+            resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+        select * from t_article
+        where 1=1
+        <if test="condition.content != null and condition.blogId != null">
+            and content = #{condition.content}
+        </if>
+        <if test="condition.blogIds != null">
+            and blog_id in
+            <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>
