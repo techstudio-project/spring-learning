@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * 配置mapper接口扫描也有很多方式
@@ -41,6 +42,12 @@ public class Config {
     public org.apache.ibatis.session.Configuration mybatisConfiguration() {
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
         config.addInterceptor(new InterceptorTest());
+        PageInterceptor pi = new PageInterceptor();
+        Properties properties = new Properties();
+        // 分页插件会自动检测当前的数据库链接，自动选择合适的分页方式
+        // 这里只是做了一个配置的例子
+        properties.setProperty("helperDialect", "mysql");
+        pi.setProperties(properties);
         config.addInterceptor(new PageInterceptor());
         config.setMapUnderscoreToCamelCase(true);
         config.setLazyLoadingEnabled(true);
