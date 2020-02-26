@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.AccountMapper">
+
+    <insert id="insert">
+        insert into t_account (username,money) values (#username,#money)
+    </insert>
+
+    <update id="updateByPrimaryKey">
+        update t_account
+        <set>
+            <if test="username != null">
+                username = #{username}
+            </if>
+            <if test="money != null">
+                money = #{money}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
