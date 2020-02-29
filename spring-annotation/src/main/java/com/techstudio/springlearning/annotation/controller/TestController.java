@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
-    @Autowired
+    //@Autowired
     private BlogDao blogDao;
 
-    @Autowired
+    //@Autowired
     private BlogMapper blogMapper;
 
     @GetMapping("/hello")

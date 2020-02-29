@@ -27,8 +27,8 @@ import java.util.Properties;
  * @date 2020/2/23
  * @see org.mybatis.spring.mapper.MapperScannerConfigurer
  */
-@Configuration
-@MapperScan("com.techstudio.springlearning.annotation.jdbc.mybatis.dao")
+//@Configuration
+//@MapperScan("com.techstudio.springlearning.annotation.jdbc.mybatis.dao")
 public class Config {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -78,7 +78,7 @@ public class Config {
      * @param factory
      * @return
      */
-    @Bean
+    //@Bean
     public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory factory) {
         return new SqlSessionTemplate(factory);
     }

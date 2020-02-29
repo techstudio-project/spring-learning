@@ -1,4 +1,4 @@
-package com.techstudio.springlearning.annotation.jdbc.mybatis.entity;
+package com.techstudio.springlearning.annotation.jdbc.entity;
 
 /**
  * @author lj

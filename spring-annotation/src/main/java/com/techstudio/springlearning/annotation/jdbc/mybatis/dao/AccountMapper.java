@@ -1,6 +1,6 @@
 package com.techstudio.springlearning.annotation.jdbc.mybatis.dao;
 
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Account;
+import com.techstudio.springlearning.annotation.jdbc.entity.Account;
 
 /**
  * @author lj

@@ -12,37 +12,37 @@
     <!-- 描述如何从数据库结果集加载对象的最复杂和最强大的元素。-->
     <!--select 嵌套子查询，(N+1 查询问题)对于返回list集合的情况会遍历每条主数据，然后进行子查询，增加了访问数据库的次数，，可以通过延迟加载来分散压力，但是如果进行遍历就会触发所有的子查询-->
     <!---->
-    <resultMap id="blogMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+    <resultMap id="blogMap" type="com.techstudio.springlearning.annotation.jdbc.entity.Blog">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <association property="article" select="findOneArticle" column="id"
-                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+                     javaType="com.techstudio.springlearning.annotation.jdbc.entity.Article">
             <id property="id" column="id"/>
             <result property="blogId" column="blog_id"/>
             <result property="content" column="content"/>
         </association>
         <collection property="articles" select="findArticles" column="id"
-                    ofType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+                    ofType="com.techstudio.springlearning.annotation.jdbc.entity.Article">
             <id property="id" column="id"/>
             <result property="blogId" column="blog_id"/>
             <result property="content" column="content"/>
         </collection>
     </resultMap>
 
-    <resultMap id="blogMapNew" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+    <resultMap id="blogMapNew" type="com.techstudio.springlearning.annotation.jdbc.entity.Blog">
         <id property="id" column="b_id"/>
         <result property="name" column="b_name"/>
         <association property="article"
                      resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper.articleBaseMap"
                      column="a_o_blog_id" columnPrefix="a_o_"
-                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article"/>
+                     javaType="com.techstudio.springlearning.annotation.jdbc.entity.Article"/>
         <collection property="articles"
                     resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper.articleBaseMap"
                     column="a_blog_id" columnPrefix="a_"
-                    ofType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article"/>
+                    ofType="com.techstudio.springlearning.annotation.jdbc.entity.Article"/>
     </resultMap>
 
-    <resultMap id="blogBaseMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog">
+    <resultMap id="blogBaseMap" type="com.techstudio.springlearning.annotation.jdbc.entity.Blog">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
     </resultMap>
@@ -87,7 +87,7 @@
         from t_blog t where t.id= #{id}
     </select>
 
-    <select id="findOneArticle" resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+    <select id="findOneArticle" resultType="com.techstudio.springlearning.annotation.jdbc.entity.Article">
         select
         <include refid="sqlFragmentArticle">
             <property name="alias" value="t"/>
@@ -95,7 +95,7 @@
         from t_article t where t.blog_id= #{blogId} limit 1
     </select>
 
-    <select id="findArticles" resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+    <select id="findArticles" resultType="com.techstudio.springlearning.annotation.jdbc.entity.Article">
         select
         <include refid="sqlFragmentArticle">
             <property name="alias" value="t"/>

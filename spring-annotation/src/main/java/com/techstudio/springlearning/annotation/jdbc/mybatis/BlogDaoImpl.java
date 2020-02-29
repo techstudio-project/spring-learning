@@ -1,6 +1,6 @@
 package com.techstudio.springlearning.annotation.jdbc.mybatis;
 
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog;
+import com.techstudio.springlearning.annotation.jdbc.entity.Blog;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author lj
  * @date 2020/2/24
  */
-@Repository
+//@Repository
 public class BlogDaoImpl extends SqlSessionDaoSupport implements BlogDao {
 
     public BlogDaoImpl(SqlSessionTemplate template) {

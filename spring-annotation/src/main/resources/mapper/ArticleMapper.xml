@@ -4,18 +4,18 @@
 
 <mapper namespace="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper">
 
-    <resultMap id="articleBaseMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+    <resultMap id="articleBaseMap" type="com.techstudio.springlearning.annotation.jdbc.entity.Article">
         <id property="id" column="id"/>
         <result property="blogId" column="blog_id"/>
         <result property="content" column="content"/>
     </resultMap>
 
-    <resultMap id="articleRelationMap" type="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+    <resultMap id="articleRelationMap" type="com.techstudio.springlearning.annotation.jdbc.entity.Article">
         <id property="id" column="id"/>
         <result property="blogId" column="blog_id"/>
         <result property="content" column="content"/>
         <association property="blog" column="b_id" columnPrefix="b_"
-                     javaType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog"
+                     javaType="com.techstudio.springlearning.annotation.jdbc.entity.Blog"
                      resultMap="com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper.blogBaseMap"/>
     </resultMap>
 
@@ -33,7 +33,7 @@
 
     <!--动态sql-->
     <select id="findWithCondition"
-            resultType="com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article">
+            resultType="com.techstudio.springlearning.annotation.jdbc.entity.Article">
         select * from t_article
         where 1=1
         <if test="condition.content != null and condition.blogId != null">

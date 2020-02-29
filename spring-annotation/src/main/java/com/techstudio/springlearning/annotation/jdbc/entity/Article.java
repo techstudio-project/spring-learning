@@ -1,19 +1,30 @@
-package com.techstudio.springlearning.annotation.jdbc.mybatis.entity;
+package com.techstudio.springlearning.annotation.jdbc.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
  * @author lj
  * @date 2020/2/22
  */
+@Entity
+@Table(name = "t_article")
 public class Article implements Serializable {
 
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "blog_id")
     private Integer blogId;
 
+
+    @JoinColumn(name = "blog_id", insertable = false, updatable = false)
+    @ManyToOne()
     private Blog blog;
 
+    @Column(name = "content")
     private String content;
 
     public Integer getId() {

@@ -1,7 +1,7 @@
 package com.techstudio.springlearning.annotation.jdbc.mybatis.dao;
 
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article;
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog;
+import com.techstudio.springlearning.annotation.jdbc.entity.Article;
+import com.techstudio.springlearning.annotation.jdbc.entity.Blog;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

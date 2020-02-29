@@ -1,6 +1,6 @@
 package com.techstudio.springlearning.annotation.jdbc.mybatis;
 
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog;
+import com.techstudio.springlearning.annotation.jdbc.entity.Blog;
 
 import java.util.List;
 

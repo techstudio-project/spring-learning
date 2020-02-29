@@ -1,7 +1,7 @@
 package com.techstudio.springlearning.annotation.tx;
 
 import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.AccountMapper;
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Account;
+import com.techstudio.springlearning.annotation.jdbc.entity.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -13,7 +13,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author lj
  * @date 2020/2/25
  */
-@Service
+//@Service
 public class AccountServiceImpl implements AccountService {
 
     private final AccountMapper accountMapper;

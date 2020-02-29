@@ -1,9 +1,9 @@
 package com.techstudio.springlearning.annotation.tx;
 
-import org.springframework.context.annotation.AdviceMode;
+import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
@@ -27,8 +27,11 @@ public class TransactionalConfiguration implements TransactionManagementConfigur
 
     private final DataSource dataSource;
 
-    public TransactionalConfiguration(DataSource dataSource) {
+    private final SessionFactory sessionFactory;
+
+    public TransactionalConfiguration(DataSource dataSource, SessionFactory sessionFactory) {
         this.dataSource = dataSource;
+        this.sessionFactory = sessionFactory;
     }
 
     @Bean
@@ -38,6 +41,6 @@ public class TransactionalConfiguration implements TransactionManagementConfigur
 
     @Override
     public PlatformTransactionManager annotationDrivenTransactionManager() {
-        return new DataSourceTransactionManager(dataSource);
+        return new HibernateTransactionManager(sessionFactory);
     }
 }

@@ -5,8 +5,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.ArticleMapper;
 import com.techstudio.springlearning.annotation.jdbc.mybatis.dao.BlogMapper;
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Article;
-import com.techstudio.springlearning.annotation.jdbc.mybatis.entity.Blog;
+import com.techstudio.springlearning.annotation.jdbc.entity.Article;
+import com.techstudio.springlearning.annotation.jdbc.entity.Blog;
 
 import java.util.List;
 
