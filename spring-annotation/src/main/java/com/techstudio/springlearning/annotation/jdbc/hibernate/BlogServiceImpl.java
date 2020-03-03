@@ -13,4 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BlogServiceImpl extends CommonServiceImpl<Blog> implements BlogService {
 
 
+    @Override
+    public void getWithCache() {
+        Blog blog = get(Blog.class, 1);
+        // 命中缓存（在同一个session中）
+        Blog blog1 = get(Blog.class, 1);
+    }
 }

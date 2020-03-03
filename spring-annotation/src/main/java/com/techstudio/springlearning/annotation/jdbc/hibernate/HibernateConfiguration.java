@@ -40,8 +40,13 @@ public class HibernateConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.format_sql", "true");
         hibernateProperties.setProperty("hibernate.format_sql", "true");
-        factoryBean.setHibernateProperties(hibernateProperties);
 
+        // 二级缓存
+        hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "ehcache-singleton");
+        // 开启查询缓存，及查询后将结果缓存，需要在查询是显示指定query.setCacheable(true)，或者在实体类注解@Cacheable
+        hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
+        factoryBean.setHibernateProperties(hibernateProperties);
 
         // 实体类映射扫描
         factoryBean.setPackagesToScan("com.techstudio.springlearning.annotation.jdbc.entity");

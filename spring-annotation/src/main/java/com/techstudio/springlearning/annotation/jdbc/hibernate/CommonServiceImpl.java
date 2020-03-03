@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-public class CommonServiceImpl<T> implements CommonService<T> {
+public class CommonServiceImpl<T> extends AbstractCommonService<T> {
 
     private CommonDao commonDao;
 
@@ -28,13 +28,8 @@ public class CommonServiceImpl<T> implements CommonService<T> {
     }
 
     @Override
-    public SessionFactory getSessionFactory() {
-        return commonDao.getSessionFactory();
-    }
-
-    @Override
-    public Session getCurrentSession() {
-        return commonDao.getCurrentSession();
+    public CommonDao getCommonDao() {
+        return commonDao;
     }
 
     @Override

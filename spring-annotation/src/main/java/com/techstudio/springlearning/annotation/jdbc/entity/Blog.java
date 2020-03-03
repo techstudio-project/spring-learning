@@ -1,11 +1,10 @@
 package com.techstudio.springlearning.annotation.jdbc.entity;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+
+import static org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE;
 
 /**
  * 开启mybatis二级缓存的情况下需要实现序列化接口
@@ -15,6 +14,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "t_blog")
+@org.hibernate.annotations.Cache(usage = READ_WRITE)
 public class Blog implements Serializable {
 
     @Id
