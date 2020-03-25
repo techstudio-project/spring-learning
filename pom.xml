@@ -33,6 +33,7 @@
         <module>spring-annotation</module>
         <module>spring-data-jpa</module>
         <module>sakila</module>
+        <module>socket</module>
     </modules>
 
     <dependencyManagement>
