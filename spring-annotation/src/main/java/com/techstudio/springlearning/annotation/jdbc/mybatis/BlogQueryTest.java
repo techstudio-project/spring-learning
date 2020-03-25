@@ -21,7 +21,7 @@ public class BlogQueryTest {
 
     public static void main(String[] args) {
 
-        queryArticleTest();
+        //queryArticleTest();
 
         queryBlogTest();
 
@@ -43,7 +43,9 @@ public class BlogQueryTest {
 
     private static void queryBlogTest() {
         BlogMapper mapper = getMapper(BlogMapper.class);
-        Blog blog = mapper.findById(1);
+        Blog query = new Blog();
+        query.setId(1);
+        Blog blog = mapper.paramTest(query,"123");
         System.out.println(JSON.toJSONString(blog));
     }
 

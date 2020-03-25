@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techstudio.sakila.dao.mapper.AddressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.techstudio.sakila.domain.Address">
+        <id column="address_id" property="addressId" />
+        <result column="address" property="address" />
+        <result column="address2" property="address2" />
+        <result column="district" property="district" />
+        <result column="city_id" property="cityId" />
+        <result column="postal_code" property="postalCode" />
+        <result column="phone" property="phone" />
+        <result column="location" property="location" />
+        <result column="last_update" property="lastUpdate" />
+    </resultMap>
+
+</mapper>

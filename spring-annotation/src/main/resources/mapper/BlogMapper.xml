@@ -64,6 +64,7 @@
 
     </update>
 
+
     <delete id="delete">
 
     </delete>
@@ -117,5 +118,9 @@
         left join t_article a on b.id=a.blog_id
         left join t_article a_o on b.id=a_o.blog_id and a_o.blog_id=3
     </select>
+    <select id="paramTest" resultType="com.techstudio.springlearning.annotation.jdbc.entity.Blog">
+        select * from t_blog where id = #{id} and name = #{nameParam}
+    </select>
+
 
 </mapper>

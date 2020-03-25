@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techstudio.sakila.dao.mapper.StoreMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.techstudio.sakila.domain.Store">
+        <id column="store_id" property="storeId" />
+        <result column="manager_staff_id" property="managerStaffId" />
+        <result column="address_id" property="addressId" />
+        <result column="last_update" property="lastUpdate" />
+    </resultMap>
+
+</mapper>

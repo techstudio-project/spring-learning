@@ -32,6 +32,7 @@
         <module>spring-xml</module>
         <module>spring-annotation</module>
         <module>spring-data-jpa</module>
+        <module>sakila</module>
     </modules>
 
     <dependencyManagement>

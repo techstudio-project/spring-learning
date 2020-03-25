@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techstudio.sakila.dao.mapper.RentalMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.techstudio.sakila.domain.Rental">
+        <id column="rental_id" property="rentalId" />
+        <result column="rental_date" property="rentalDate" />
+        <result column="inventory_id" property="inventoryId" />
+        <result column="customer_id" property="customerId" />
+        <result column="return_date" property="returnDate" />
+        <result column="staff_id" property="staffId" />
+        <result column="last_update" property="lastUpdate" />
+    </resultMap>
+
+</mapper>

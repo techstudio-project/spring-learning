@@ -3,6 +3,7 @@ package com.techstudio.springlearning.jpa.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -35,6 +36,9 @@ public class PropertiesUtils {
     public static Properties loadProperties(String location) throws IOException {
         try (InputStream is = PropertiesUtils.class.getClassLoader()
                 .getResourceAsStream(location)) {
+            if (is == null) {
+                throw new FileNotFoundException(location + " not found");
+            }
             Properties prop = new Properties();
             prop.load(is);
             return prop;

@@ -38,4 +38,6 @@ public interface BlogMapper {
 
     Object delete();
 
+    Blog paramTest(Blog blog,String nameParam);
+
 }
