@@ -11,6 +11,9 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 /**
+ * 基于阻塞io改造的，依然用了阻塞io中的线程模型，即每个客户端都会有两个线程（一读、一写）
+ * 仅仅是为了使用nio中的一些api，并没有体现nio带来的性能提升
+ *
  * @author lj
  * @since 2020/4/2
  */
