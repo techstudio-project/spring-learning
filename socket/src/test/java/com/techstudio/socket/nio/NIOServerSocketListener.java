@@ -66,7 +66,7 @@ public class NIOServerSocketListener extends ServerSocketListener {
                         SocketChannel sc = ssc.accept();
 
                         // 启动SocketHandler进行异步处理
-                        SocketHandler socketHandler = new NIOSocketHandler(niotcpServer, sc);
+                        SocketHandler socketHandler = new NIOSocketHandlerNew(niotcpServer, sc);
                         socketHandler.start();
                         socketHandler.setClientInfo(sc.getRemoteAddress().toString());
 

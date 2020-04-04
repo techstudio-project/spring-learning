@@ -16,6 +16,7 @@ public class ServerSocketListener extends Thread {
     protected boolean exit = false;
 
     public ServerSocketListener(TCPServer tcpServer) throws IOException {
+        super("socket-listener-thread");
         this.tcpServer = tcpServer;
     }
 
