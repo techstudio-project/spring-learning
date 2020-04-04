@@ -124,8 +124,10 @@ public class SelectorIOProvider implements IOProvider {
                     // 注册selector得到Key
                     key = channel.register(selector, registerOps);
                 }
+
                 // 注册回调
                 callbackMap.putIfAbsent(key, runnable);
+
                 return key;
             } catch (ClosedChannelException e) {
                 logger.error(e.getMessage(), e);

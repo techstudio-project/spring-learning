@@ -26,7 +26,14 @@ public class IOArgs {
 
     public String buffer2String() {
         // 丢弃最后换行符
-        return new String(bytes, 0, byteBuffer.position());
+        String s = new String(bytes, 0, byteBuffer.position());
+        if (s.endsWith("\n")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        if (s.endsWith("\r")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s;
     }
 
     public interface IOArgsEventListener {
