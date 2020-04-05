@@ -27,6 +27,7 @@ public class IOArgs {
      * @return int
      */
     public int readFrom(ReadableByteChannel channel) throws IOException {
+        startWriting();
         int byteProduced = 0;
         while (byteBuffer.hasRemaining()) {
             int len = channel.read(byteBuffer);
@@ -35,6 +36,7 @@ public class IOArgs {
             }
             byteProduced += len;
         }
+        finishWriting();
         return byteProduced;
     }
 

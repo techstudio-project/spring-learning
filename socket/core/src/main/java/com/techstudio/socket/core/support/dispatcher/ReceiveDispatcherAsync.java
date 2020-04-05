@@ -91,10 +91,10 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
     }
 
     private void completeAssemblePacket(boolean success) {
+        CloseableUtils.close(logger, receivePacketTemp, writableByteChannel);
         if (receivePacketTemp != null) {
             receivePacketCallback.onReceivePacketCompleted(receivePacketTemp);
         }
-        CloseableUtils.close(logger, receivePacketTemp, writableByteChannel);
         receivePacketTemp = null;
         writableByteChannel = null;
         total = 0;

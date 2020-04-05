@@ -82,7 +82,7 @@ public class SocketChannelAdapter implements Sender, Receiver, Closeable {
             }
             IOArgs args = sendEventProcessor.provideIoArgs();
             try {
-                // 开始从channel读取到buffer
+                // 将数据写入到socketChannel
                 if (args.writeTo(channel) > 0) {
                     // 读取完成时的回调
                     sendEventProcessor.onConsumeCompleted(args);

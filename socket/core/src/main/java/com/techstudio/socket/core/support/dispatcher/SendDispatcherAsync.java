@@ -152,6 +152,6 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
 
     @Override
     public void onConsumeCompleted(IOArgs args) {
-
+        sendCurrentPacket();
     }
 }
