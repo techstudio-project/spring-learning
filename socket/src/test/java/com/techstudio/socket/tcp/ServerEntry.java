@@ -15,7 +15,7 @@ public class ServerEntry {
     public static void main(String[] args) throws IOException {
 
         // TCPServer tcpServer = new TCPServer(20000);
-        TCPServer tcpServer = new NIOTCPServer(20000);
+        NIOTCPServer tcpServer = new NIOTCPServer(20000);
         tcpServer.start();
 
         BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));

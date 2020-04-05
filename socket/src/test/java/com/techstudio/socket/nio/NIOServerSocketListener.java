@@ -1,12 +1,11 @@
 package com.techstudio.socket.nio;
 
-import com.techstudio.socket.tcp.ServerSocketListener;
-import com.techstudio.socket.tcp.SocketHandler;
-import com.techstudio.socket.tcp.TCPServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -17,18 +16,18 @@ import java.util.Iterator;
  * @author lj
  * @since 2020/4/2
  */
-public class NIOServerSocketListener extends ServerSocketListener {
+public class NIOServerSocketListener extends Thread {
 
     private static final Logger logger = LoggerFactory.getLogger(NIOServerSocketListener.class);
 
     private final NIOTCPServer niotcpServer;
+    protected boolean exit = false;
 
-    public NIOServerSocketListener(TCPServer server) throws IOException {
-        super(server);
-        niotcpServer = (NIOTCPServer) server;
+    public NIOServerSocketListener(NIOTCPServer server) throws IOException {
+        super("socket-listener-thread");
+        niotcpServer = server;
     }
 
-    @Override
     public void run() {
 
         Selector selector = niotcpServer.getSelector();
@@ -66,16 +65,14 @@ public class NIOServerSocketListener extends ServerSocketListener {
                         SocketChannel sc = ssc.accept();
 
                         // 启动SocketHandler进行异步处理
-                        SocketHandler socketHandler = new NIOSocketHandlerNew(niotcpServer, sc);
-                        socketHandler.start();
-                        socketHandler.setClientInfo(sc.getRemoteAddress().toString());
+                        NIOSocketHandlerNew socketHandler = new NIOSocketHandlerNew(sc, niotcpServer);
 
                         synchronized (niotcpServer) {
                             // 加入已连接的队列
                             niotcpServer.addSocketHandler(socketHandler);
                         }
 
-                        logger.info("新客户端加入：{}", socketHandler.getClientInfo());
+                        logger.info("新客户端加入：{}", socketHandler.getKey());
                     }
                 }
 
@@ -87,4 +84,23 @@ public class NIOServerSocketListener extends ServerSocketListener {
 
         logger.info("服务端已关闭。。。");
     }
+
+    public void exit() {
+
+    }
+
+    public void initServerSocket(ServerSocket ss) throws SocketException {
+        // 是否复用未完全关闭的地址端口
+        ss.setReuseAddress(true);
+
+        // 接收缓冲区大小，等效 Socket#setReceiveBufferSize
+        ss.setReceiveBufferSize(64 * 1024);
+
+        // 设置ServerSocket#accept超时时间，一般不设置
+        // defaultServerSocket.setSoTimeout(2000);
+
+        // 设置性能参数：短链接，延迟，带宽的相对重要性
+        ss.setPerformancePreferences(1, 1, 1);
+    }
+
 }

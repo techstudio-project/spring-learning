@@ -50,6 +50,10 @@ public interface IOProvider extends Closeable {
         public void setAttach(Object attach) {
             this.attach = attach;
         }
+
+        public Object getAttach() {
+            return attach;
+        }
     }
 
 }

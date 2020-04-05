@@ -1,5 +1,8 @@
 package com.techstudio.socket.tcp;
 
+import com.techstudio.socket.nio.NIOTCPClient;
+import com.techstudio.socket.nio.NIOTCPServer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,8 +14,11 @@ import java.io.InputStreamReader;
 public class ClientEntry {
 
     public static void main(String[] args) throws IOException {
-        TCPClient tcpClient = new TCPClient(20000);
-        tcpClient.start();
+        // TCPClient tcpClient = new TCPClient(20000);
+        // tcpClient.start();
+
+        NIOTCPClient tcpClient = new NIOTCPClient(20000);
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String str;
         do {

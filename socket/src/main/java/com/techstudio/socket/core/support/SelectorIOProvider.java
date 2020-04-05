@@ -172,7 +172,7 @@ public class SelectorIOProvider implements IOProvider {
                         continue;
                     }
                     // 拿到已就绪的channel集合
-                    Set<SelectionKey> selectionKeys = readSelector.selectedKeys();
+                    Set<SelectionKey> selectionKeys = writeSelector.selectedKeys();
                     // 遍历这些channel，将他们加入到线程池中，进行异步调度
                     for (SelectionKey key : selectionKeys) {
                         // 先判断SelectionKey是否有效

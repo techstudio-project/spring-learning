@@ -1,6 +1,5 @@
 package com.techstudio.socket.nio;
 
-import com.techstudio.socket.tcp.TCPServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,25 +8,35 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * 基于阻塞io改造的，依然用了阻塞io中的线程模型，即每个客户端都会有两个线程（一读、一写）
- * 仅仅是为了使用nio中的一些api，并没有体现nio带来的性能提升
- *
  * @author lj
  * @since 2020/4/2
  */
-public class NIOTCPServer extends TCPServer {
+public class NIOTCPServer implements NIOSocketHandlerCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(NIOTCPServer.class);
     private Selector selector;
     private ServerSocketChannel serverChannel;
 
+    private final int port;
+    private List<NIOSocketHandlerNew> socketHandlers = new ArrayList<>();
+    private NIOServerSocketListener serverListener;
+
+    protected ExecutorService forwardingThreadPoolExecutor = Executors.newSingleThreadExecutor();
+
     public NIOTCPServer(int port) {
-        super(port);
+        this.port = port;
     }
 
-    @Override
+    public NIOTCPServer() {
+        this(8443);
+    }
+
     public boolean start() {
         try {
             // 创建Selector（选择器）对象，NIO的核心组件之一，用于（轮询）检查多个nio channel状态是否可读、可写。
@@ -63,4 +72,51 @@ public class NIOTCPServer extends TCPServer {
     public ServerSocketChannel getServerChannel() {
         return serverChannel;
     }
+
+    @Override
+    public void onClosed(NIOSocketHandlerNew socketHandler) {
+
+    }
+
+    @Override
+    public void onMessageReceive(NIOSocketHandlerNew socketHandler, String msg) {
+        // 通过异步线程池给其它在线客户端发送消息
+        forwardingThreadPoolExecutor.execute(() -> {
+            synchronized (this) {
+                for (NIOSocketHandlerNew handler : socketHandlers) {
+                    if (socketHandler.equals(handler)) {
+                        continue;
+                    }
+                    handler.send(msg);
+                }
+            }
+        });
+    }
+
+    /**
+     * 广播消息
+     *
+     * @param msg msg
+     */
+    public synchronized void broadcast(String msg) {
+        for (NIOSocketHandlerNew socketHandler : socketHandlers) {
+            socketHandler.send(msg);
+        }
+    }
+
+    public synchronized void removeSocketHandler(NIOSocketHandlerNew socketHandler) {
+        this.socketHandlers.remove(socketHandler);
+    }
+
+    public synchronized void addSocketHandler(NIOSocketHandlerNew socketHandler) {
+        this.socketHandlers.add(socketHandler);
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void stop() {
+    }
+
 }
