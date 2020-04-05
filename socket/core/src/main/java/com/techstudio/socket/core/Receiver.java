@@ -8,8 +8,8 @@ import java.io.IOException;
  */
 public interface Receiver {
 
-    void setReceiveListener(IOArgs.IOArgsEventListener listener);
+    void setReceiveListener(IOArgs.IOArgsEventProcessor processor);
 
-    boolean receiveAsync(IOArgs ioArgs) throws IOException;
+    boolean postReceiveAsync() throws IOException;
 
 }

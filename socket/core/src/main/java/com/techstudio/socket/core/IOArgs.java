@@ -3,7 +3,9 @@ package com.techstudio.socket.core;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * io输入输出参数封装
@@ -15,8 +17,7 @@ public class IOArgs {
 
     // 默认和byteBuffer的容量一致
     private int limit = 256;
-    private byte[] bytes = new byte[256];
-    private ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+    private ByteBuffer byteBuffer = ByteBuffer.allocate(256);
 
     /**
      * 读取bytes到ByteBuffer，返回总共读取字符的总数
@@ -25,10 +26,16 @@ public class IOArgs {
      * @param offset 位移
      * @return int
      */
-    public int readFrom(byte[] bytes, int offset) {
-        int size = Math.min(bytes.length - offset, byteBuffer.remaining());
-        byteBuffer.put(bytes, offset, size);
-        return size;
+    public int readFrom(ReadableByteChannel channel) throws IOException {
+        int byteProduced = 0;
+        while (byteBuffer.hasRemaining()) {
+            int len = channel.read(byteBuffer);
+            if (len < 0) {
+                throw new EOFException();
+            }
+            byteProduced += len;
+        }
+        return byteProduced;
     }
 
     /**
@@ -38,10 +45,16 @@ public class IOArgs {
      * @param offset
      * @return
      */
-    public int writeTo(byte[] bytes, int offset) {
-        int size = Math.min(bytes.length - offset, byteBuffer.remaining());
-        byteBuffer.get(bytes, offset, size);
-        return size;
+    public int writeTo(WritableByteChannel channel) throws IOException {
+        int byteProduced = 0;
+        while (byteBuffer.hasRemaining()) {
+            int len = channel.write(byteBuffer);
+            if (len < 0) {
+                throw new EOFException();
+            }
+            byteProduced += len;
+        }
+        return byteProduced;
     }
 
     /**
@@ -108,7 +121,9 @@ public class IOArgs {
      * @param total
      */
     public void writePacketLength(int total) {
+        startWriting();
         byteBuffer.putInt(total);
+        finishWriting();
     }
 
     /**
@@ -124,7 +139,7 @@ public class IOArgs {
         return limit;
     }
 
-    public int getCapacity(){
+    public int getCapacity() {
         return byteBuffer.capacity();
     }
 
@@ -137,10 +152,27 @@ public class IOArgs {
         this.limit = limit;
     }
 
-    public interface IOArgsEventListener {
+    public interface IOArgsEventProcessor {
+        /**
+         * 提供一份可消费的IoArgs
+         *
+         * @return IoArgs
+         */
+        IOArgs provideIoArgs();
 
-        void onStarted(IOArgs args);
+        /**
+         * 消费失败时回调
+         *
+         * @param args IoArgs
+         * @param e    异常信息
+         */
+        void onConsumeFailed(IOArgs args, Exception e);
 
-        void onCompleted(IOArgs args);
+        /**
+         * 消费成功
+         *
+         * @param args IoArgs
+         */
+        void onConsumeCompleted(IOArgs args);
     }
 }

@@ -1,14 +1,14 @@
-package com.techstudio.socket.core.support;
+package com.techstudio.socket.core.support.packet;
 
 import com.techstudio.socket.core.AbstractSendPacket;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 
 /**
  * @author lj
  * @since 2020/4/4
  */
-public class StringSendPacket extends AbstractSendPacket {
+public class StringSendPacket extends AbstractSendPacket<ByteArrayInputStream> {
 
     private final byte[] bytes;
 
@@ -18,17 +18,12 @@ public class StringSendPacket extends AbstractSendPacket {
     }
 
     @Override
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    @Override
     public byte getType() {
         return TYPE_STREAM_FILE;
     }
 
     @Override
-    public void close() throws IOException {
-
+    public ByteArrayInputStream createStream() {
+        return new ByteArrayInputStream(bytes);
     }
 }

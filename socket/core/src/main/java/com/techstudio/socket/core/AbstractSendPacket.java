@@ -1,20 +1,22 @@
 package com.techstudio.socket.core;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * 发送包的定义
  *
  * @author lj
  * @since 2020/4/4
  */
-public abstract class AbstractSendPacket extends AbstractPacket {
+public abstract class AbstractSendPacket<T extends InputStream> extends AbstractPacket<T> {
 
     private boolean canceled;
 
-    public AbstractSendPacket(int length) {
+    public AbstractSendPacket(long length) {
         super(length);
     }
-
-    public abstract byte[] getBytes();
 
     public boolean isCanceled() {
         return canceled;

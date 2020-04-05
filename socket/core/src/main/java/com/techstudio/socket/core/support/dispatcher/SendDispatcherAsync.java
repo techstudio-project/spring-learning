@@ -1,4 +1,4 @@
-package com.techstudio.socket.core.support;
+package com.techstudio.socket.core.support.dispatcher;
 
 import com.techstudio.socket.core.AbstractSendPacket;
 import com.techstudio.socket.core.IOArgs;
@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,22 +19,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author lj
  * @since 2020/4/4
  */
-public class SendDispatcherAsync implements SendDispatcher {
+public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(SendDispatcherAsync.class);
     private final Sender sender;
     private final Queue<AbstractSendPacket> sendPacketQueue = new ConcurrentLinkedDeque<>();
     private final AtomicBoolean sending = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     // 当前需要发送的packet
-    private AbstractSendPacket currentSendPacket;
+    private AbstractSendPacket<?> currentSendPacketTemp;
     // 当前packet的大小
-    private int total;
+    private long total;
     // 当前packet已经发送的位置，进度
-    private int position;
+    private long position;
+
+    private IOArgs ioArgs = new IOArgs();
+    private ReadableByteChannel readableByteChannel;
 
     public SendDispatcherAsync(Sender sender) {
         this.sender = sender;
+        this.sender.setSendListener(this);
     }
 
     @Override
@@ -53,12 +60,12 @@ public class SendDispatcherAsync implements SendDispatcher {
 
     private void sendPackage() {
         // 上一个packet
-        AbstractSendPacket preSendPacket = currentSendPacket;
+        AbstractSendPacket preSendPacket = currentSendPacketTemp;
         if (preSendPacket != null) {
             CloseableUtils.close(logger, preSendPacket);
         }
 
-        AbstractSendPacket sendPacket = currentSendPacket = takePacket();
+        AbstractSendPacket sendPacket = currentSendPacketTemp = takePacket();
         if (sendPacket == null) {
             // 为null，说明队列中已经没有要发送的packet了，所以将发送状态置为false
             sending.set(false);
@@ -72,31 +79,30 @@ public class SendDispatcherAsync implements SendDispatcher {
     }
 
     private void sendCurrentPacket() {
-        IOArgs ioArgs = new IOArgs();
-
-        ioArgs.startWriting();
-
         // 当前packet已经发送完了
         if (position >= total) {
+            completeSendPacket(position == total);
             // 发送下一条
             sendPackage();
             return;
-        } else if (position == 0) {
-            // 刚开始发送，需要携带长度信息，（针对与socketChannel而言的首包）
-            ioArgs.writePacketLength(total);
         }
-
-        byte[] bytes = currentSendPacket.getBytes();
-        int count = ioArgs.readFrom(bytes, position);
-        position += count;
-
-        ioArgs.finishWriting();
-
         try {
-            sender.sendAsync(ioArgs, ioArgsEventListener);
+            sender.postSendAsync();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    private void completeSendPacket(boolean success) {
+        AbstractSendPacket sendPacket = this.currentSendPacketTemp;
+        if (sendPacket == null) {
+            return;
+        }
+        CloseableUtils.close(logger, sendPacket, readableByteChannel);
+        currentSendPacketTemp = null;
+        readableByteChannel = null;
+        total = 0;
+        position = 0;
     }
 
     private AbstractSendPacket takePacket() {
@@ -108,21 +114,44 @@ public class SendDispatcherAsync implements SendDispatcher {
         return sendPacket;
     }
 
-    private IOArgs.IOArgsEventListener ioArgsEventListener = new IOArgs.IOArgsEventListener() {
-        @Override
-        public void onStarted(IOArgs args) {
-
-        }
-
-        @Override
-        public void onCompleted(IOArgs args) {
-            // 当前包长度可能大于byteBuffer的容量，此时需要继续发送
-            sendCurrentPacket();
-        }
-    };
-
     @Override
     public void close() throws IOException {
+        if (closed.compareAndSet(false, true)) {
+            sending.set(true);
+            completeSendPacket(false);
+        }
+    }
+
+    @Override
+    public IOArgs provideIoArgs() {
+        IOArgs args = this.ioArgs;
+
+        // 第一次打开通道
+        if (readableByteChannel == null) {
+            readableByteChannel = Channels.newChannel(currentSendPacketTemp.open());
+            // 将文件长度放到头部
+            args.setLimit(4);
+            args.writePacketLength((int) currentSendPacketTemp.getLength());
+        } else {
+            args.setLimit((int) Math.min(args.getCapacity(), total - position));
+            try {
+                int count = args.readFrom(readableByteChannel);
+                position += count;
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+                return null;
+            }
+        }
+        return args;
+    }
+
+    @Override
+    public void onConsumeFailed(IOArgs args, Exception e) {
+        logger.error(e.getMessage(), e);
+    }
+
+    @Override
+    public void onConsumeCompleted(IOArgs args) {
 
     }
 }

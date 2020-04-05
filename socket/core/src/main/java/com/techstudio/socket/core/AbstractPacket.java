@@ -1,12 +1,13 @@
 package com.techstudio.socket.core;
 
 import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * @author lj
  * @since 2020/4/4
  */
-public abstract class AbstractPacket implements Closeable {
+public abstract class AbstractPacket<T extends Closeable> implements Closeable {
 
     // BYTES 类型
     public static final byte TYPE_MEMORY_BYTES = 1;
@@ -17,15 +18,39 @@ public abstract class AbstractPacket implements Closeable {
     // 长链接流 类型
     public static final byte TYPE_STREAM_DIRECT = 4;
 
-    private final int length;
+    private T stream;
+    private final long length;
 
-    public AbstractPacket(int length) {
+    public AbstractPacket(long length) {
         this.length = length;
     }
 
     public abstract byte getType();
 
-    public int getLength() {
+
+    public abstract T createStream();
+
+    public void closeStream(T stream) throws IOException {
+        stream.close();
+    }
+
+    public final T open() {
+        if (stream == null) {
+            stream = createStream();
+        }
+        return stream;
+    }
+
+    @Override
+    public final void close() throws IOException {
+        if (stream != null) {
+            closeStream(stream);
+            stream = null;
+        }
+    }
+
+    public long getLength() {
         return length;
     }
+
 }

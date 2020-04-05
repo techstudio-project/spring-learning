@@ -32,28 +32,15 @@ public interface IOProvider extends Closeable {
 
     abstract class HandleOutputCallback implements Runnable {
 
-        /**
-         * 需要发送的数据
-         */
-        private Object attach;
-
         @Override
         public void run() {
-            canProvideOutput(attach);
+            canProvideOutput();
         }
 
         /**
          * 可以提供输出了
          */
-        protected abstract void canProvideOutput(Object attach);
-
-        public void setAttach(Object attach) {
-            this.attach = attach;
-        }
-
-        public Object getAttach() {
-            return attach;
-        }
+        protected abstract void canProvideOutput();
     }
 
 }
