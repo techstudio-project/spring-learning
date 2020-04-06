@@ -1,7 +1,5 @@
 package com.techstudio.socket.core;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -10,7 +8,7 @@ import java.io.InputStream;
  * @author lj
  * @since 2020/4/4
  */
-public abstract class AbstractSendPacket<T extends InputStream> extends AbstractPacket<T> {
+public abstract class AbstractSendPacket<S extends InputStream> extends AbstractPacket<S> {
 
     private boolean canceled;
 
@@ -24,5 +22,9 @@ public abstract class AbstractSendPacket<T extends InputStream> extends Abstract
 
     public void setCanceled(boolean canceled) {
         this.canceled = canceled;
+    }
+
+    public void cancel(){
+        setCanceled(true);
     }
 }

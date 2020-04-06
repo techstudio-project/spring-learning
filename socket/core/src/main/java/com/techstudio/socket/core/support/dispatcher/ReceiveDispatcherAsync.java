@@ -4,7 +4,6 @@ import com.techstudio.socket.core.AbstractReceivePacket;
 import com.techstudio.socket.core.IOArgs;
 import com.techstudio.socket.core.ReceiveDispatcher;
 import com.techstudio.socket.core.Receiver;
-import com.techstudio.socket.core.support.packet.StringReceivePacket;
 import com.techstudio.socket.core.util.CloseableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,9 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.techstudio.socket.core.AbstractPacket.TYPE_MEMORY_STRING;
+import static com.techstudio.socket.core.AbstractPacket.TYPE_STREAM_FILE;
 
 /**
  * @author lj
@@ -27,7 +29,7 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
     private final ReceivePacketCallback receivePacketCallback;
 
     private IOArgs ioArgs = new IOArgs();
-    private AbstractReceivePacket<?> receivePacketTemp;
+    private AbstractReceivePacket<?, ?> receivePacketTemp;
     private long total;
     private long position;
     private WritableByteChannel writableByteChannel;
@@ -69,7 +71,8 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
             // 设置初始值
             int length = args.readPacketLength();
             // 这里先写死string类型
-            receivePacketTemp = new StringReceivePacket(length);
+            byte type = length > 256 ? TYPE_STREAM_FILE : TYPE_MEMORY_STRING;
+            receivePacketTemp = receivePacketCallback.onArrivedNewPacket(type, length);
             writableByteChannel = Channels.newChannel(receivePacketTemp.open());
             total = length;
             position = 0;

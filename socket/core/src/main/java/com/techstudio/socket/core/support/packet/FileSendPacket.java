@@ -10,8 +10,11 @@ import java.io.*;
  */
 public class FileSendPacket extends AbstractSendPacket<FileInputStream> {
 
+    private final File file;
+
     public FileSendPacket(File file) {
         super(file.length());
+        this.file = file;
     }
 
     @Override
@@ -21,7 +24,11 @@ public class FileSendPacket extends AbstractSendPacket<FileInputStream> {
 
     @Override
     public FileInputStream createStream() {
-        return null;
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
 

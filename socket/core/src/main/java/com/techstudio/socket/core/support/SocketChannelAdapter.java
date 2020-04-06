@@ -60,8 +60,11 @@ public class SocketChannelAdapter implements Sender, Receiver, Closeable {
             }
             IOArgs args = receiveEventProcessor.provideIoArgs();
             try {
+                if (args == null) {
+                    receiveEventProcessor.onConsumeFailed(null, new IOException("IOArgs is null"));
+                }
                 // 开始从channel读取到buffer
-                if (args.readFrom(channel) > 0) {
+                else if (args.readFrom(channel) > 0) {
                     // 读取完成时的回调
                     receiveEventProcessor.onConsumeCompleted(args);
                 } else {
@@ -82,8 +85,11 @@ public class SocketChannelAdapter implements Sender, Receiver, Closeable {
             }
             IOArgs args = sendEventProcessor.provideIoArgs();
             try {
+                if (args == null) {
+                    sendEventProcessor.onConsumeFailed(null, new IOException("IOArgs is null"));
+                }
                 // 将数据写入到socketChannel
-                if (args.writeTo(channel) > 0) {
+                else if (args.writeTo(channel) > 0) {
                     // 读取完成时的回调
                     sendEventProcessor.onConsumeCompleted(args);
                 } else {

@@ -1,7 +1,12 @@
 package com.techstudio.socket.client.nio;
 
 import com.techstudio.socket.core.Connector;
+import com.techstudio.socket.core.AbstractReceivePacket;
+import com.techstudio.socket.core.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -9,11 +14,16 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 
+import static com.techstudio.socket.core.AbstractPacket.TYPE_MEMORY_STRING;
+
 /**
  * @author lj
  * @since 2020/4/2
  */
 public class NIOTCPClient extends Connector {
+
+    private static final Logger logger = LoggerFactory.getLogger(NIOTCPClient.class);
+    private final File cachePath = FileUtils.getCacheDir("client");
 
     public NIOTCPClient(int remotePort) throws IOException {
         this(remotePort, null);
@@ -68,4 +78,17 @@ public class NIOTCPClient extends Connector {
         socket.setPerformancePreferences(1, 1, 1);
     }
 
+    @Override
+    protected File createNewReceiveFile() {
+        return FileUtils.createRandomTemp(cachePath);
+    }
+
+    @Override
+    protected void onReceivedPacket(AbstractReceivePacket packet) {
+        super.onReceivedPacket(packet);
+        if (packet.getType() == TYPE_MEMORY_STRING) {
+            String string = (String) packet.getEntity();
+            logger.info("{}:{}", getKey(), string);
+        }
+    }
 }

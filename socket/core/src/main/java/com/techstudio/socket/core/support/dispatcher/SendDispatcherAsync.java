@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,23 +17,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author lj
  * @since 2020/4/4
  */
-public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventProcessor {
+public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventProcessor,
+        PacketReaderAsync.SendPacketProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(SendDispatcherAsync.class);
     private final Sender sender;
     private final Queue<AbstractSendPacket> sendPacketQueue = new ConcurrentLinkedDeque<>();
+    private final Object queueLock = new Object();
+    private final PacketReaderAsync packetReader = new PacketReaderAsync(this);
+
     private final AtomicBoolean sending = new AtomicBoolean(false);
     private final AtomicBoolean closed = new AtomicBoolean(false);
-
-    // 当前需要发送的packet
-    private AbstractSendPacket<?> currentSendPacketTemp;
-    // 当前packet的大小
-    private long total;
-    // 当前packet已经发送的位置，进度
-    private long position;
-
-    private IOArgs ioArgs = new IOArgs();
-    private ReadableByteChannel readableByteChannel;
 
     public SendDispatcherAsync(Sender sender) {
         this.sender = sender;
@@ -44,48 +36,37 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
 
     @Override
     public void send(AbstractSendPacket sendPacket) {
-        // 将packet放入队列
-        sendPacketQueue.offer(sendPacket);
-        // 判断是否是由空闲转为发送状态
-        if (sending.compareAndSet(false, true)) {
-            sendPackage();
+        synchronized (queueLock) {
+            // 将packet放入队列
+            sendPacketQueue.offer(sendPacket);
+            // 判断是否是由空闲转为发送状态
+            if (sending.compareAndSet(false, true)) {
+                // 请求获取一个包
+                if (packetReader.requestTakePacket()) {
+                    // 如果拿到了，就发起发送请求
+                    requestSend();
+                }
+            }
         }
     }
-
 
     @Override
     public void cancel(AbstractSendPacket sendPacket) {
-
-    }
-
-    private void sendPackage() {
-        // 上一个packet
-        AbstractSendPacket preSendPacket = currentSendPacketTemp;
-        if (preSendPacket != null) {
-            CloseableUtils.close(logger, preSendPacket);
+        boolean ret;
+        synchronized (queueLock) {
+            ret = sendPacketQueue.remove(sendPacket);
         }
-
-        AbstractSendPacket sendPacket = currentSendPacketTemp = takePacket();
-        if (sendPacket == null) {
-            // 为null，说明队列中已经没有要发送的packet了，所以将发送状态置为false
-            sending.set(false);
+        if (ret) {
+            sendPacket.cancel();
             return;
         }
-        // 设置本次发送的总长度
-        total = sendPacket.getLength();
-        // 设置本次发送的起始位置
-        position = 0;
-        sendCurrentPacket();
+        packetReader.cancel(sendPacket);
     }
 
-    private void sendCurrentPacket() {
-        // 当前packet已经发送完了
-        if (position >= total) {
-            completeSendPacket(position == total);
-            // 发送下一条
-            sendPackage();
-            return;
-        }
+    /**
+     * 请求网络进行数据发送
+     */
+    private void requestSend() {
         try {
             sender.postSendAsync();
         } catch (IOException e) {
@@ -93,21 +74,17 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
         }
     }
 
-    private void completeSendPacket(boolean success) {
-        AbstractSendPacket sendPacket = this.currentSendPacketTemp;
-        if (sendPacket == null) {
-            return;
+    @Override
+    public AbstractSendPacket takePacket() {
+        AbstractSendPacket sendPacket;
+        synchronized (queueLock) {
+            sendPacket = sendPacketQueue.poll();
+            if (sendPacket == null) {
+                sending.set(false);
+                return null;
+            }
         }
-        CloseableUtils.close(logger, sendPacket, readableByteChannel);
-        currentSendPacketTemp = null;
-        readableByteChannel = null;
-        total = 0;
-        position = 0;
-    }
-
-    private AbstractSendPacket takePacket() {
-        AbstractSendPacket sendPacket = sendPacketQueue.poll();
-        if (sendPacket != null && sendPacket.isCanceled()) {
+        if (sendPacket.isCanceled()) {
             // 如果packet取消了发送，则继续从队列中拿packet
             return takePacket();
         }
@@ -115,43 +92,37 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
     }
 
     @Override
+    public void completedPacket(AbstractSendPacket packet, boolean isSucceed) {
+        CloseableUtils.close(logger, packet);
+    }
+
+    @Override
     public void close() throws IOException {
         if (closed.compareAndSet(false, true)) {
             sending.set(true);
-            completeSendPacket(false);
+            packetReader.close();
         }
     }
 
     @Override
     public IOArgs provideIoArgs() {
-        IOArgs args = this.ioArgs;
-
-        // 第一次打开通道
-        if (readableByteChannel == null) {
-            readableByteChannel = Channels.newChannel(currentSendPacketTemp.open());
-            // 将文件长度放到头部
-            args.setLimit(4);
-            args.writePacketLength((int) currentSendPacketTemp.getLength());
-        } else {
-            args.setLimit((int) Math.min(args.getCapacity(), total - position));
-            try {
-                int count = args.readFrom(readableByteChannel);
-                position += count;
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-                return null;
-            }
-        }
-        return args;
+        return packetReader.fillData();
     }
 
     @Override
     public void onConsumeFailed(IOArgs args, Exception e) {
-        logger.error(e.getMessage(), e);
+        if (args != null) {
+            logger.error(e.getMessage(), e);
+        } else {
+            // todo
+        }
+
     }
 
     @Override
     public void onConsumeCompleted(IOArgs args) {
-        sendCurrentPacket();
+        if (packetReader.requestTakePacket()) {
+            requestSend();
+        }
     }
 }
