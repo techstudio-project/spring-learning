@@ -69,9 +69,12 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
 
     @Override
     public void onConsumeCompleted(IOArgs args) {
+        if (closed.get()) {
+            return;
+        }
         do {
             packetWriter.consumeIoArgs(args);
-        } while (args.remained());
+        } while (args.remained() && !closed.get());
         registerReceive();
     }
 

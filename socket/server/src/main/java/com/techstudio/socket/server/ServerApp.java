@@ -22,6 +22,9 @@ public class ServerApp {
         String str;
         do {
             str = consoleReader.readLine();
+            if (str == null || str.length() == 0) {
+                break;
+            }
             tcpServer.broadcast(str);
         } while (!"exit".equalsIgnoreCase(str));
 

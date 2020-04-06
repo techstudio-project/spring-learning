@@ -23,7 +23,7 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
     private static final Logger logger = LoggerFactory.getLogger(SendDispatcherAsync.class);
     private final Sender sender;
     private final Queue<AbstractSendPacket> sendPacketQueue = new ConcurrentLinkedDeque<>();
-    private final Object queueLock = new Object();
+
     private final PacketReaderAsync packetReader = new PacketReaderAsync(this);
 
     private final AtomicBoolean sending = new AtomicBoolean(false);
@@ -36,26 +36,14 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
 
     @Override
     public void send(AbstractSendPacket sendPacket) {
-        synchronized (queueLock) {
-            // 将packet放入队列
-            sendPacketQueue.offer(sendPacket);
-            // 判断是否是由空闲转为发送状态
-            if (sending.compareAndSet(false, true)) {
-                // 请求获取一个包
-                if (packetReader.requestTakePacket()) {
-                    // 如果拿到了，就发起发送请求
-                    requestSend();
-                }
-            }
-        }
+        // 将packet放入队列
+        sendPacketQueue.offer(sendPacket);
+        requestSend();
     }
 
     @Override
     public void cancel(AbstractSendPacket sendPacket) {
-        boolean ret;
-        synchronized (queueLock) {
-            ret = sendPacketQueue.remove(sendPacket);
-        }
+        boolean ret = sendPacketQueue.remove(sendPacket);
         if (ret) {
             sendPacket.cancel();
             return;
@@ -67,23 +55,32 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
      * 请求网络进行数据发送
      */
     private void requestSend() {
-        try {
-            sender.postSendAsync();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+
+        synchronized (sending) {
+            if (sending.get() || closed.get()) {
+                return;
+            }
+            if (packetReader.requestTakePacket()) {
+                try {
+                    boolean success = sender.postSendAsync();
+                    if (success) {
+                        sending.set(true);
+                    }
+                } catch (IOException e) {
+                    closeAndNotify();
+                }
+            }
         }
+
     }
 
     @Override
     public AbstractSendPacket takePacket() {
-        AbstractSendPacket sendPacket;
-        synchronized (queueLock) {
-            sendPacket = sendPacketQueue.poll();
-            if (sendPacket == null) {
-                sending.set(false);
-                return null;
-            }
+        AbstractSendPacket sendPacket = sendPacketQueue.poll();
+        if (sendPacket == null) {
+            return null;
         }
+
         if (sendPacket.isCanceled()) {
             // 如果packet取消了发送，则继续从队列中拿packet
             return takePacket();
@@ -97,32 +94,42 @@ public class SendDispatcherAsync implements SendDispatcher, IOArgs.IOArgsEventPr
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (closed.compareAndSet(false, true)) {
-            sending.set(true);
             packetReader.close();
+            sendPacketQueue.clear();
+            synchronized (sending) {
+                sending.set(true);
+            }
         }
     }
 
     @Override
     public IOArgs provideIoArgs() {
-        return packetReader.fillData();
+        return closed.get() ? null : packetReader.fillData();
     }
 
     @Override
     public void onConsumeFailed(IOArgs args, Exception e) {
-        if (args != null) {
-            logger.error(e.getMessage(), e);
-        } else {
-            // todo
+        logger.error(e.getMessage(), e);
+        synchronized (sending) {
+            sending.set(false);
         }
-
+        requestSend();
     }
 
     @Override
     public void onConsumeCompleted(IOArgs args) {
-        if (packetReader.requestTakePacket()) {
-            requestSend();
+        synchronized (sending) {
+            sending.set(false);
         }
+        requestSend();
+    }
+
+    /**
+     * 请求网络发送异常时触发，进行关闭操作
+     */
+    private void closeAndNotify() {
+        CloseableUtils.close(logger, this);
     }
 }

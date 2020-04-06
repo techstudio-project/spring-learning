@@ -25,6 +25,10 @@ public class ClientApp {
         do {
 
             str = reader.readLine();
+            if (str == null || str.length() == 0) {
+                break;
+            }
+
             if ("exit".equalsIgnoreCase(str)) {
                 break;
             }
