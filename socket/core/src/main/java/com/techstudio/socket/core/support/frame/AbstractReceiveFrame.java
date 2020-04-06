@@ -5,11 +5,11 @@ import com.techstudio.socket.core.IOArgs;
 
 import java.io.IOException;
 
-public abstract class AbsReceiveFrame extends Frame {
+public abstract class AbstractReceiveFrame extends Frame {
     // 帧体可读写区域大小
     volatile int bodyRemaining;
 
-    AbsReceiveFrame(byte[] header) {
+    AbstractReceiveFrame(byte[] header) {
         super(header);
         bodyRemaining = getBodyLength();
     }

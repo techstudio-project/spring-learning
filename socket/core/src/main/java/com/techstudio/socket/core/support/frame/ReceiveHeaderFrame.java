@@ -1,8 +1,8 @@
 package com.techstudio.socket.core.support.frame;
 
-import net.qiujuer.library.clink.core.IoArgs;
+import com.techstudio.socket.core.IOArgs;
 
-public class ReceiveHeaderFrame extends AbsReceiveFrame {
+public class ReceiveHeaderFrame extends AbstractReceiveFrame {
     private final byte[] body;
 
     ReceiveHeaderFrame(byte[] header) {
@@ -11,7 +11,7 @@ public class ReceiveHeaderFrame extends AbsReceiveFrame {
     }
 
     @Override
-    protected int consumeBody(IoArgs args) {
+    protected int consumeBody(IOArgs args) {
         int offset = body.length - bodyRemaining;
         return args.writeTo(body, offset);
     }

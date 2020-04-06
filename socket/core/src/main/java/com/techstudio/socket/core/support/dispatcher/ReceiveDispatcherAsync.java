@@ -9,18 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.techstudio.socket.core.AbstractPacket.TYPE_MEMORY_STRING;
-import static com.techstudio.socket.core.AbstractPacket.TYPE_STREAM_FILE;
 
 /**
  * @author lj
  * @since 2020/4/4
  */
-public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsEventProcessor {
+public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsEventProcessor,
+        PacketWriterAsync.ReceivePacketProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(ReceiveDispatcherAsync.class);
 
@@ -28,11 +24,7 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
     private final Receiver receiver;
     private final ReceivePacketCallback receivePacketCallback;
 
-    private IOArgs ioArgs = new IOArgs();
-    private AbstractReceivePacket<?, ?> receivePacketTemp;
-    private long total;
-    private long position;
-    private WritableByteChannel writableByteChannel;
+    private final PacketWriterAsync packetWriter = new PacketWriterAsync(this);
 
     public ReceiveDispatcherAsync(Receiver receiver, ReceivePacketCallback receivePacketCallback) {
         this.receiver = receiver;
@@ -53,7 +45,7 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
     @Override
     public void close() throws IOException {
         if (closed.compareAndSet(false, true)) {
-            completeAssemblePacket(false);
+            packetWriter.close();
         }
     }
 
@@ -65,56 +57,9 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
         }
     }
 
-    private void assemblePacket(IOArgs args) {
-        // 开始读取首包
-        if (receivePacketTemp == null) {
-            // 设置初始值
-            int length = args.readPacketLength();
-            // 这里先写死string类型
-            byte type = length > 256 ? TYPE_STREAM_FILE : TYPE_MEMORY_STRING;
-            receivePacketTemp = receivePacketCallback.onArrivedNewPacket(type, length);
-            writableByteChannel = Channels.newChannel(receivePacketTemp.open());
-            total = length;
-            position = 0;
-        }
-        int count;
-        try {
-            count = args.writeTo(writableByteChannel);
-            position += count;
-            // 已经完成整条数据的读取
-            if (position == total) {
-                completeAssemblePacket(true);
-                receivePacketTemp = null;
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            completeAssemblePacket(false);
-        }
-
-    }
-
-    private void completeAssemblePacket(boolean success) {
-        CloseableUtils.close(logger, receivePacketTemp, writableByteChannel);
-        if (receivePacketTemp != null) {
-            receivePacketCallback.onReceivePacketCompleted(receivePacketTemp);
-        }
-        receivePacketTemp = null;
-        writableByteChannel = null;
-        total = 0;
-        position = 0;
-    }
-
     @Override
     public IOArgs provideIoArgs() {
-        IOArgs args = ioArgs;
-        int receiveSize;
-        if (receivePacketTemp == null) {
-            receiveSize = 4;
-        } else {
-            receiveSize = (int) Math.min(total - position, args.getCapacity());
-        }
-        args.setLimit(receiveSize);
-        return args;
+        return packetWriter.takeIoArgs();
     }
 
     @Override
@@ -124,7 +69,20 @@ public class ReceiveDispatcherAsync implements ReceiveDispatcher, IOArgs.IOArgsE
 
     @Override
     public void onConsumeCompleted(IOArgs args) {
-        assemblePacket(args);
+        do {
+            packetWriter.consumeIoArgs(args);
+        } while (args.remained());
         registerReceive();
+    }
+
+    @Override
+    public AbstractReceivePacket takePacket(byte type, long length, byte[] headerInfo) {
+        return receivePacketCallback.onArrivedNewPacket(type, length);
+    }
+
+    @Override
+    public void completedPacket(AbstractReceivePacket packet, boolean isSucceed) {
+        CloseableUtils.close(logger, packet);
+        receivePacketCallback.onReceivePacketCompleted(packet);
     }
 }

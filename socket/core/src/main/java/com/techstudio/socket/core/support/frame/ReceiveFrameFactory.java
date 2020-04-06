@@ -1,7 +1,7 @@
 package com.techstudio.socket.core.support.frame;
 
-import net.qiujuer.library.clink.core.Frame;
-import net.qiujuer.library.clink.core.IoArgs;
+import com.techstudio.socket.core.Frame;
+import com.techstudio.socket.core.IOArgs;
 
 /**
  * 接收帧构建工厂
@@ -13,7 +13,7 @@ public class ReceiveFrameFactory {
      * @param args IoArgs至少需要有6字节数据可读
      * @return 构建的帧头数据
      */
-    public static AbsReceiveFrame createInstance(IoArgs args) {
+    public static AbstractReceiveFrame createReceiveFrame(IOArgs args) {
         byte[] buffer = new byte[Frame.FRAME_HEADER_LENGTH];
         args.writeTo(buffer, 0);
         byte type = buffer[2];
