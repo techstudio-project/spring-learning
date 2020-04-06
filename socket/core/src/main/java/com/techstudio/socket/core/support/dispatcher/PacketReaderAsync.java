@@ -101,7 +101,7 @@ public class PacketReaderAsync implements Closeable {
             // 当链表中有数据时，说明有数据正在发送，则不用去队列里再拿数据出来解析到frame里
             // 1 代表有数据
             // 后面可以设置大于1的数，表示虽然还有数据在发送此时我也可以去队列里拿新的packet，这样可以达到并发的目的
-            if (nodeSize >= 1) {
+            if (nodeSize >= 4) {
                 return true;
             }
         }
