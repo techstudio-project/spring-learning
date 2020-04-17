@@ -1,11 +1,10 @@
 package com.techstudio.springlearning.annotation;
 
+import com.techstudio.springlearning.annotation.service.LoginService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
@@ -21,6 +20,7 @@ public class AnnotationConfigApp {
 
     public static void main(String[] args) {
         applicationContext = SpringApplication.run(AnnotationConfigApp.class, args);
+        // LoginService lo = applicationContext.getBean(LoginService.class);
     }
 
     public static ConfigurableApplicationContext getApplicationContext() {

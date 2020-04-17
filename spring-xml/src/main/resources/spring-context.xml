@@ -17,5 +17,5 @@
     </context:component-scan>
 
     <!--开启AspectJ aop配置-->
-    <aop:aspectj-autoproxy/>
+    <!--    <aop:aspectj-autoproxy/>-->
 </beans>

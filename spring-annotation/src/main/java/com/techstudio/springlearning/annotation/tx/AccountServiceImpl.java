@@ -44,6 +44,7 @@ public class AccountServiceImpl implements AccountService {
      * 基于TransactionTemplate的编程式事务，在基于声明式不能满足需求的情况下可以用此方法来达到更细粒度的控制
      * 不过一般还是采取声明式的事务，关键是代码侵入小，更简洁
      */
+    @Override
     public void transactionalTemplateTest() {
         transaction.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -63,6 +64,7 @@ public class AccountServiceImpl implements AccountService {
     /**
      * 基于aop的事务,一个注解就可以搞定
      */
+    @Override
     @Transactional
     public void transactionalAop() {
         test();

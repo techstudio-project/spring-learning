@@ -15,6 +15,7 @@ import java.util.*;
  */
 public abstract class AbstractCommonDao implements CommonDao {
 
+    @Override
     public Session getCurrentSession() {
         return getSessionFactory().getCurrentSession();
     }

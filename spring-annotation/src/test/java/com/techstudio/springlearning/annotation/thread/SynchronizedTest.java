@@ -3,7 +3,9 @@ package com.techstudio.springlearning.annotation.thread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @author lj
@@ -20,6 +22,8 @@ public class SynchronizedTest {
         for (int i = 0; i < 2; i++) {
             Thread thread = new Thread(() -> {
                 try {
+                    // 当startGate.countDown()时开始执行
+                    startGate.await();
                     test();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();

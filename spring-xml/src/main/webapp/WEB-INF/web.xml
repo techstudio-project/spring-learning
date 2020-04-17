@@ -51,10 +51,27 @@
         <!-- 大于等于0：在启动时就会创建这个servlet -->
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <!--
+    /* ： 是匹配所有的路径包括带后缀的，所以用这个通配时，访问jsp也会被servlet拦截（通过controller转发的时候）
+    /：是匹配路径，不包括.jsp ,但是包括其它静态资源例如xx.js ss.jpg (这时就需要mvc的resource来配置了)
+    -->
+    <!--    <servlet-mapping>-->
+    <!--        <servlet-name>dispatcherServlet</servlet-name>-->
+    <!--        &lt;!&ndash;        比较传统的方式，对于视图都带上.do后缀&ndash;&gt;-->
+    <!--        <url-pattern>*.do</url-pattern>-->
+    <!--    </servlet-mapping>-->
+    <!--    <servlet-mapping>-->
+    <!--        <servlet-name>dispatcherServlet</servlet-name>-->
+    <!--        &lt;!&ndash;        rest api 则带上/rest前缀&ndash;&gt;-->
+    <!--        <url-pattern>/api/*</url-pattern>-->
+    <!--    </servlet-mapping>-->
+
     <servlet-mapping>
         <servlet-name>dispatcherServlet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-
+    <welcome-file-list>
+        <welcome-file>/index.jsp</welcome-file>
+    </welcome-file-list>
 </web-app>

@@ -18,7 +18,7 @@ public class ClientApp {
         // TCPClient tcpClient = new TCPClient(20000);
         // tcpClient.start();
 
-        NIOTCPClient tcpClient = new NIOTCPClient(20000);
+        NIOTCPClient tcpClient = new NIOTCPClient(40000);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String str;

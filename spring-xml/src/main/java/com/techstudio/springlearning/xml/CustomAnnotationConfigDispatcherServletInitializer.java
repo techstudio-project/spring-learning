@@ -9,28 +9,31 @@ import javax.servlet.Filter;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * 此类的作用是通过注解的方式初始化spring的DispatcherServlet
+ *
  * @author lj
  * @date 2020/2/8
  */
 public class CustomAnnotationConfigDispatcherServletInitializer
-        extends AbstractAnnotationConfigDispatcherServletInitializer {
+        //extends AbstractAnnotationConfigDispatcherServletInitializer
+{
 
-    @Override
+    //@Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[]{RootConfig.class};
     }
 
-    @Override
+    //@Override
     protected Class<?>[] getServletConfigClasses() {
         return new Class[]{WebMvcConfig.class};
     }
 
-    @Override
+    //@Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
 
-    @Override
+    //@Override
     protected Filter[] getServletFilters() {
         return new Filter[]{characterEncodingFilter()};
     }

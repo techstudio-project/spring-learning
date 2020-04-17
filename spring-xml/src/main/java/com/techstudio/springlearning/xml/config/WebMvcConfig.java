@@ -8,14 +8,15 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 /**
  * @author lj
  * @date 2020/2/8
  */
-@Configuration
-@EnableWebMvc
-@ComponentScan("com.techstudio.springlearning.xml.controller")
+//@Configuration
+//@EnableWebMvc
+//@ComponentScan("com.techstudio.springlearning.xml.controller")
 public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
@@ -28,6 +29,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         InternalResourceViewResolver resolver = new InternalResourceViewResolver();
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setSuffix(".jsp");
+        // resolver.setViewClass(JstlView.class);
         resolver.setExposeContextBeansAsAttributes(true);
         return resolver;
     }
