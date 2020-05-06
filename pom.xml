@@ -35,6 +35,7 @@
         <module>sakila</module>
         <module>socket</module>
         <module>netty</module>
+        <module>component</module>
     </modules>
 
     <dependencyManagement>
